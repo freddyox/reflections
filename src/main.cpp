@@ -12,11 +12,13 @@
 
 #include "../include/Module.hh"
 
-const float gDisplayx = 800;
+const float gDisplayx = 1000;
 const float gDisplayy = 400;
 int main() {
   //GAME SETUP
-  sf::RenderWindow window(sf::VideoMode(gDisplayx,gDisplayy), "Reflection Simulation");
+  sf::ContextSettings setting;
+  setting.antialiasingLevel = 10;
+  sf::RenderWindow window(sf::VideoMode(gDisplayx,gDisplayy), "Reflection Simulation", sf::Style::Default, setting);
   window.setFramerateLimit(60);
 
 
@@ -24,8 +26,8 @@ int main() {
   //                   Initialize                     //
   //////////////////////////////////////////////////////
   Module module( sf::Vector2f(gDisplayx/2.0, gDisplayy/2.0), gDisplayx, gDisplayy );
-  module.initialize_photon();
-
+  module.InitializePhoton();
+  module.MakeSpecs();
   sf::Clock clock;
 
   while( window.isOpen() ) {
@@ -36,7 +38,6 @@ int main() {
       }
     }
     window.clear();
-
 
     // DRAWINGS
     window.draw( module );
