@@ -46,6 +46,7 @@ Module::Module( sf::Vector2f pos, float x, float y ) {
   circle.setFillColor( sf::Color::Black );
   circle.setOutlineThickness( -circle_thick );
   circle.setOutlineColor( sf::Color::Green );
+  circle.setPointCount(50);
   circle.setPosition( displayx/2.0 + width/2.0, displayy/2.0 );
 
   //TEST
@@ -207,7 +208,7 @@ void Module::InitializePhoton() {
   lines[1].position = next + (gamma_mag-circle_thick)*next_temp_hat;
   lines[1].color = sf::Color::White;
   path.push_back( lines );
-  test.setPosition(next + (gamma_mag-circle_thick)*next_temp_hat);
+  test.setPosition(next + gamma_mag*next_temp_hat);
 
   // Do the reflections within the circle
   // First, we need a unit vector that is perp to r_hat
