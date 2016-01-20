@@ -38,7 +38,7 @@ Module::Module( sf::Vector2f pos, float x, float y ) {
   sub_module1.setPosition( pos.x + width/2.0, pos.y );
 
   // Make Thin Circular Half at end of Module
-  circle_thick = 3.0;
+  circle_thick = thickness;
   radius = displayy/2.0 - 100.0;
   circle.setRadius( radius );
   sf::FloatRect recttemp = circle.getLocalBounds();
@@ -131,7 +131,7 @@ void Module::InitializePhoton() {
   lines[1].position = first_track;
   lines[1].color = sf::Color::White;
   path.push_back( lines );
-
+  
   // Iteratively propagate through the module
   // Keep track of a length variable, if the photon_track.dot(x_hat) exceeds
   // length of module, then stop the iteration:
@@ -185,8 +185,7 @@ void Module::InitializePhoton() {
   // Extend the last photon track
   lines[0].position = next;
   lines[0].color = sf::Color::White;
-  test.setPosition(next);
-  
+
   // Unit vector pointing towards circle in photon's direction
   sf::Vector2f next_temp(nextX, nextY);
 
@@ -205,14 +204,26 @@ void Module::InitializePhoton() {
   float gamma_mag = sqrt( pow(gamma.x,2) + pow(gamma.y,2) );
   sf::Vector2f gamma_hat = gamma / gamma_mag;
 
-  //std::cout << gamma_mag << std::endl;
-  std::cout << next.x << " " << next_temp.x << std::endl;
-  std::cout << next.y << " " << next_temp.y << std::endl;
-
-  lines[1].position = next + gamma_mag*gamma_hat;
+  lines[1].position = next + (gamma_mag-circle_thick)*next_temp_hat;
   lines[1].color = sf::Color::White;
   path.push_back( lines );
-  
+  test.setPosition(next + (gamma_mag-circle_thick)*next_temp_hat);
+
+  // Do the reflections within the circle
+  // First, we need a unit vector that is perp to r_hat
+  // sf::Vector2f r_perp_hat( -cos(theta_prime), sin(theta_prime) );
+  // // now we need the angle between gamma_mag*next_temp_hat and r_perp_hat
+  // float theta_in = acos( (gamma.x*r_perp_hat.x + gamma.y*r_perp_hat.y) / gamma_mag );
+  // sf::Vector2f r_in =  next + gamma_mag*next_temp_hat;
+  // r = r_in - circle_C;
+  // float theta1 = atan( r.y/r.x );
+  // float alpha = 3.141592/2.0 - theta_in - theta1;
+  // lines[0].position = r_in;
+  // lines[0].color = sf::Color::White;
+  // sf::Vector2f beta( -2*radius*sin( alpha + 3.141592/2.0), -2*radius*cos( alpha + 3.141592/2.0 ) );
+  // lines[1].position = r_in + beta;
+  // lines[1].color = sf::Color::White;
+  // path.push_back( lines );
 }
 
 void Module::MakeSpecs() {
