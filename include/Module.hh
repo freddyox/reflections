@@ -9,7 +9,11 @@ private:
   float width, height, displayx, displayy;
   float thickness;
   float rad2deg;
-  sf::RectangleShape module, sub_module, sub_module1;
+  sf::RectangleShape module, sub_module, sub_module1, sub_circle;
+
+  sf::CircleShape circle,test;
+  float circle_thick;
+  float radius,r_test;
 
   // Photons
   sf::VertexArray lines;

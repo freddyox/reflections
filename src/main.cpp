@@ -12,8 +12,8 @@
 
 #include "../include/Module.hh"
 
-const float gDisplayx = 1000;
-const float gDisplayy = 400;
+const float gDisplayx = 1400;
+const float gDisplayy = 600;
 int main() {
   //GAME SETUP
   sf::ContextSettings setting;

@@ -14,7 +14,7 @@ Module::Module( sf::Vector2f pos, float x, float y ) {
   rad2deg = 180.0 / 3.141592;
   // Main "Module" 
   width = 800.0;
-  height = 50.0;
+  height = 80.0;
   thickness = 5.0;
 
   sf::Vector2f mod_size(width, height );
@@ -37,6 +37,30 @@ Module::Module( sf::Vector2f pos, float x, float y ) {
   sub_module1.setFillColor( sf::Color::Black );
   sub_module1.setPosition( pos.x + width/2.0, pos.y );
 
+  // Make Thin Circular Half at end of Module
+  circle_thick = 3.0;
+  radius = displayy/2.0 - 100.0;
+  circle.setRadius( radius );
+  sf::FloatRect recttemp = circle.getLocalBounds();
+  circle.setOrigin( recttemp.width/2.0, recttemp.height/2.0 );
+  circle.setFillColor( sf::Color::Black );
+  circle.setOutlineThickness( -circle_thick );
+  circle.setOutlineColor( sf::Color::Green );
+  circle.setPosition( displayx/2.0 + width/2.0, displayy/2.0 );
+
+  //TEST
+  r_test = 5.0;
+  test.setRadius( r_test);
+  recttemp = test.getLocalBounds();
+  test.setOrigin( recttemp.width/2.0, recttemp.height/2.0 );
+  test.setFillColor( sf::Color::Blue );
+
+  // Cut it in half
+  sub_circle.setSize( sf::Vector2f(2*radius,2*radius) );
+  sub_circle.setFillColor( sf::Color::Black );
+  sub_circle.setOrigin( radius, radius );
+  sub_circle.setPosition( displayx/2.0 + width/2.0 - radius, displayy/2.0 );
+
   // Trace the Photon
   lines = sf::VertexArray(sf::LinesStrip,2);
   reflections = 0;
@@ -49,9 +73,12 @@ Module::Module( sf::Vector2f pos, float x, float y ) {
 }
 
 void Module::draw( sf::RenderTarget& target, sf::RenderStates ) const {
+  target.draw( circle );
+  target.draw( sub_circle );
   target.draw( module );
   target.draw( sub_module );
   target.draw( sub_module1 );
+  target.draw( test );
 
   std::vector<sf::VertexArray>::const_iterator cit;
   for(cit=path.begin(); cit != path.end(); cit++) {
@@ -82,6 +109,7 @@ void Module::InitializePhoton() {
 
   // Calculate the angle of dist wrt to x_hat
   float theta = acos(dist_hat.x);
+  float theta_prime = 3.141592/2.0 - theta;
   initial_angle = theta*(180.0 / 3.141592);
 
   // Extend the vector from the left face to somewhere within the module
@@ -154,15 +182,37 @@ void Module::InitializePhoton() {
     next_temp = reset;
   }
 
-  // Extend the last photon track, and make it the same length
-  // as the initial photon track
+  // Extend the last photon track
   lines[0].position = next;
   lines[0].color = sf::Color::White;
-  float length_of_initial = 0.1*lengthx / cos(theta);
-  sf::Vector2f next_temp(length_of_initial*nextX, length_of_initial*nextY);
-  lines[1].position = next + next_temp;
+  test.setPosition(next);
+  
+  // Unit vector pointing towards circle in photon's direction
+  sf::Vector2f next_temp(nextX, nextY);
+
+  float next_temp_mag = sqrt( pow(next_temp.x,2) + pow(next_temp.y,2) );
+  sf::Vector2f next_temp_hat = next_temp / next_temp_mag;
+
+  if( next_temp.y < 0.0 ) theta_prime = 3.141592/2.0 + theta;
+
+  sf::Vector2f circle_C( displayx/2.0 + width/2.0, displayy/2.0 );
+  sf::Vector2f r( (radius-circle_thick)*sin(theta_prime), (radius-circle_thick)*cos(theta_prime) );
+  float r_mag = sqrt( pow(r.x,2) + pow(r.y,2) );
+  sf::Vector2f r_hat = r / r_mag;
+
+  sf::Vector2f correct = next - circle_C;
+  sf::Vector2f gamma = r - correct;
+  float gamma_mag = sqrt( pow(gamma.x,2) + pow(gamma.y,2) );
+  sf::Vector2f gamma_hat = gamma / gamma_mag;
+
+  //std::cout << gamma_mag << std::endl;
+  std::cout << next.x << " " << next_temp.x << std::endl;
+  std::cout << next.y << " " << next_temp.y << std::endl;
+
+  lines[1].position = next + gamma_mag*gamma_hat;
   lines[1].color = sf::Color::White;
   path.push_back( lines );
+  
 }
 
 void Module::MakeSpecs() {
